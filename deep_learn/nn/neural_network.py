@@ -1,7 +1,7 @@
 import numpy as np
-from ..utils.activation import sigmoid
+from ..utils.activation import sigmoid, relu
 from ..utils.cost import logistic_cost
-from ..utils.back_prop import sigmoid_backward
+from ..utils.back_prop import sigmoid_backward, relu_backward
 
 
 class ann(object):
@@ -83,12 +83,12 @@ class ann(object):
 
         if activation == "sigmoid":
             # Inputs: "A_prev, W, b". Outputs: "A, activation_cache".
-            Z, linear_cache = linear_forward(A_prev, W, b)
+            Z, linear_cache = ann.linear_forward(A_prev, W, b)
             A, activation_cache = sigmoid(Z)
 
         elif activation == "relu":
             # Inputs: "A_prev, W, b". Outputs: "A, activation_cache".
-            Z, linear_cache = linear_forward(A_prev, W, b)
+            Z, linear_cache = ann.linear_forward(A_prev, W, b)
             A, activation_cache = relu(Z)
 
         assert (A.shape == (W.shape[0], A_prev.shape[1]))
@@ -120,40 +120,16 @@ class ann(object):
         # Implement [LINEAR -> RELU]*(L-1). Add "cache" to the "caches" list.
         for l in range(1, L):
             A_prev = A
-            A, cache = linear_activation_forward(A_prev, parameters['W' + str(l)], parameters['b' + str(l)], activation = "relu")
+            A, cache = ann.linear_activation_forward(A_prev, parameters['W' + str(l)], parameters['b' + str(l)], activation = "relu")
             caches.append(cache)
 
         # Implement LINEAR -> SIGMOID. Add "cache" to the "caches" list.
-        AL, cache = linear_activation_forward(A, parameters['W' + str(L)], parameters['b' + str(L)], activation = "sigmoid")
+        AL, cache = ann.linear_activation_forward(A, parameters['W' + str(L)], parameters['b' + str(L)], activation = "sigmoid")
         caches.append(cache)
 
         assert(AL.shape == (1,X.shape[1]))
 
         return AL, caches
-
-
-    @staticmethod
-    def compute_cost(AL, Y):
-        """
-        Implement the cost function defined by equation (7).
-
-        Arguments:
-        AL -- probability vector corresponding to your label predictions, shape (1, number of examples)
-        Y -- true "label" vector (for example: containing 0 if non-cat, 1 if cat), shape (1, number of examples)
-
-        Returns:
-        cost -- cross-entropy cost
-        """
-
-        m = Y.shape[1]
-
-        # Compute loss from aL and y.
-        cost = (1./m) * (-np.dot(Y,np.log(AL).T) - np.dot(1-Y, np.log(1-AL).T))
-
-        cost = np.squeeze(cost)      # To make sure your cost's shape is what we expect (e.g. this turns [[17]] into 17).
-        assert(cost.shape == ())
-
-        return cost
 
 
     @staticmethod
@@ -203,11 +179,11 @@ class ann(object):
 
         if activation == "relu":
             dZ = relu_backward(dA, activation_cache)
-            dA_prev, dW, db = linear_backward(dZ, linear_cache)
+            dA_prev, dW, db = ann.linear_backward(dZ, linear_cache)
 
         elif activation == "sigmoid":
             dZ = sigmoid_backward(dA, activation_cache)
-            dA_prev, dW, db = linear_backward(dZ, linear_cache)
+            dA_prev, dW, db = ann.linear_backward(dZ, linear_cache)
 
         return dA_prev, dW, db
 
@@ -240,12 +216,12 @@ class ann(object):
 
         # Lth layer (SIGMOID -> LINEAR) gradients. Inputs: "AL, Y, caches". Outputs: "grads["dAL"], grads["dWL"], grads["dbL"]
         current_cache = caches[L-1]
-        grads["dA" + str(L-1)], grads["dW" + str(L)], grads["db" + str(L)] = linear_activation_backward(dAL, current_cache, activation = "sigmoid")
+        grads["dA" + str(L-1)], grads["dW" + str(L)], grads["db" + str(L)] = ann.linear_activation_backward(dAL, current_cache, activation = "sigmoid")
 
         for l in reversed(range(L-1)):
             # lth layer: (RELU -> LINEAR) gradients.
             current_cache = caches[l]
-            dA_prev_temp, dW_temp, db_temp = linear_activation_backward(grads["dA" + str(l + 1)], current_cache, activation = "relu")
+            dA_prev_temp, dW_temp, db_temp = ann.linear_activation_backward(grads["dA" + str(l + 1)], current_cache, activation = "relu")
             grads["dA" + str(l)] = dA_prev_temp
             grads["dW" + str(l + 1)] = dW_temp
             grads["db" + str(l + 1)] = db_temp
