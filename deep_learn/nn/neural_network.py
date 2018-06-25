@@ -12,6 +12,7 @@ class ann(object):
 
         self.layers_dims = layers_dims
         self.parameters = None
+        self.costs = None
 
 
     @staticmethod
@@ -252,3 +253,111 @@ class ann(object):
             parameters["b" + str(l+1)] = parameters["b" + str(l+1)] - learning_rate * grads["db" + str(l+1)]
 
         return parameters
+
+    @staticmethod
+    def predict_binary(X, parameters):
+        """
+        This function is used to predict the results of a  L-layer neural network.
+
+        Arguments:
+        X -- data set of examples you would like to label
+        parameters -- parameters of the trained model
+
+        Returns:
+        p -- predictions for the given dataset X
+        """
+
+        m = X.shape[1]
+        p = np.zeros((1,m))
+
+        # Forward propagation
+        probas, caches = ann.L_model_forward(X, parameters)
+
+        # convert probas to 0/1 predictions
+        for i in range(0, probas.shape[1]):
+            if probas[0,i] > 0.5:
+                p[0,i] = 1
+            else:
+                p[0,i] = 0
+
+        return p
+
+
+    @staticmethod
+    def accuracy(X, y, parameters):
+
+        m = X.shape[1]
+
+        p = ann.predict_binary(X, parameters)
+
+        #print results
+        #print ("predictions: " + str(p))
+        #print ("true labels: " + str(y))
+        print("Accuracy: "  + str(np.sum((p == y)/m)))
+
+
+    def fit(self, X_train, Y_train, X_test, Y_test, batch_size, learning_rate = 0.0075, num_iterations = 3000, print_cost=False):
+        """
+        Implements a L-layer neural network: [LINEAR->RELU]*(L-1)->LINEAR->SIGMOID.
+
+        Arguments:
+        X -- data, numpy array of shape (number of examples, num_px * num_px * 3)
+        Y -- true "label" vector (containing 0 if cat, 1 if non-cat), of shape (1, number of examples)
+        layers_dims -- list containing the input size and each layer size, of length (number of layers + 1).
+        learning_rate -- learning rate of the gradient descent update rule
+        num_iterations -- number of iterations of the optimization loop
+        print_cost -- if True, it prints the cost every 100 steps
+
+        Returns:
+        parameters -- parameters learnt by the model. They can then be used to predict.
+        """
+
+        np.random.seed(1)
+        costs = []                         # keep track of cost
+
+        n = Y_train.shape[1]
+
+        # Parameters initialization. (≈ 1 line of code)
+        ### START CODE HERE ###
+        parameters = ann.initialize_parameters_deep(self.layers_dims)
+        ### END CODE HERE ###
+
+        # Loop (gradient descent)
+        for i in range(0, num_iterations):
+
+            rand_index = np.random.choice(X_train.shape[0], size=batch_size)
+            X_rand = X_train[rand_index].T
+            Y_rand = Y_train[rand_index].T
+
+            # Forward propagation: [LINEAR -> RELU]*(L-1) -> LINEAR -> SIGMOID.
+            ### START CODE HERE ### (≈ 1 line of code)
+            AL, caches = ann.L_model_forward(X_rand, parameters)
+            ### END CODE HERE ###
+
+            # Compute cost.
+            ### START CODE HERE ### (≈ 1 line of code)
+            if n == 1:
+                cost = logistic_cost(AL, Y_rand)
+            ### END CODE HERE ###
+
+            # Backward propagation.
+            ### START CODE HERE ### (≈ 1 line of code)
+            grads = ann.L_model_backward(AL, Y_rand, caches)
+            ### END CODE HERE ###
+
+            # Update parameters.
+            ### START CODE HERE ### (≈ 1 line of code)
+            parameters = ann.update_parameters(parameters, grads, learning_rate)
+            ### END CODE HERE ###
+
+            # Print the cost every 100 training example
+            if print_cost and i % 100 == 0:
+                print ("Cost after iteration %i: %f" %(i, cost))
+            if print_cost and i % 100 == 0:
+                costs.append(cost)
+
+        self.parameters = parameters
+        self.costs = costs
+
+        if n == 1:
+            predictions = ann.accuracy(X_test.T, Y_test.T, parameters)
