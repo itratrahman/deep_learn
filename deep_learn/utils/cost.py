@@ -1,6 +1,5 @@
 # import numpy
 import numpy as np
-from sklearn.metrics import log_loss
 
 
 def logistic_cost(AL, Y):
@@ -26,9 +25,14 @@ def logistic_cost(AL, Y):
     return cost
 
 
-def logloss(AL, Y, eps=1e-15):
+def logloss(Y, AL, eps=1e-15):
 
     '''a function which implements logloss'''
+    y_pred = AL.T
+    y_true = Y.T
 
-    cost = log_loss(Y.T, AL.T)
-    return cost
+    y_pred = np.clip(y_pred, eps, 1 - eps)
+    y_pred /= y_pred.sum(axis=1)[:, np.newaxis]
+    loss = np.average(-(y_true * np.log(y_pred)).sum(axis=1))
+
+    return loss

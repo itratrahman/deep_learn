@@ -367,7 +367,7 @@ class ann(object):
             if n_classes == 1:
                 cost = logistic_cost(AL, Y_rand)
             else:
-                cost = logloss(AL, Y_rand)
+                cost = logloss(Y_rand, AL)
             ### END CODE HERE ###
 
             # Backward propagation.

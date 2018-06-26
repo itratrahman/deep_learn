@@ -4,6 +4,7 @@ append_path('../')
 
 # import statements
 from deep_learn.nn import ann
+from deep_learn.utils.cost import logloss
 from test_cases import *
 import numpy as np
 import math
@@ -112,6 +113,17 @@ class test(object):
 
         print("predict_multiclass_test passed", "\n")
 
+    @staticmethod
+    def logloss_test():
+
+        from sklearn.metrics import log_loss
+
+        y_ = np.array([[.01, .9, .35],[.8, .3, .1],[.1,.25,.75],[0.4, .2,.95],[.65, .001,0.06]])
+        y = np.array([[0, 1, 0],[1, 0, 0],[0,0,1],[0, 0,1],[1, 0,0]])
+        assert(log_loss(y,y_) == logloss(y.T,y_.T))
+        
+        print("logloss_test passed", "\n")
+
 
 
 
@@ -138,6 +150,8 @@ if __name__ == "__main__":
     test.update_parameters_test()
 
     test.predict_multiclass_test()
+
+    test.logloss_test()
 
     done = time.time()
 
