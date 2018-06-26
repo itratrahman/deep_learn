@@ -103,6 +103,15 @@ class test(object):
         print("update_parameters_test passed", "\n")
 
 
+    @staticmethod
+    def predict_multiclass_test():
+
+        y_ = np.array([[.01, .9, .35],[.8, .3, .1],[.1,.25,.75],[0.4, .2,.95],[.65, .001,0.06]])
+        y_ = y_.T
+        assert(np.allclose(ann.predict_multiclass(y_), np.array([[1, 0, 2, 2,0]])))
+
+        print("predict_multiclass_test passed", "\n")
+
 
 
 
@@ -128,6 +137,7 @@ if __name__ == "__main__":
 
     test.update_parameters_test()
 
+    test.predict_multiclass_test()
 
     done = time.time()
 

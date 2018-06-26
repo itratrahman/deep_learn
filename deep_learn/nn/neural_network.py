@@ -128,7 +128,7 @@ class ann(object):
         AL, cache = ann.linear_activation_forward(A, parameters['W' + str(L)], parameters['b' + str(L)], activation = "sigmoid")
         caches.append(cache)
 
-        assert(AL.shape == (1,X.shape[1]))
+        # assert(AL.shape == (1,X.shape[1]))
 
         return AL, caches
 
@@ -255,7 +255,32 @@ class ann(object):
         return parameters
 
     @staticmethod
-    def predict_binary(X, parameters):
+    def predict_binary(probas):
+
+        m = probas.shape[1]
+        p = np.zeros((1,m))
+
+        # convert probas to 0/1 predictions
+        for i in range(0, probas.shape[1]):
+            if probas[0,i] > 0.5:
+                p[0,i] = 1
+            else:
+                p[0,i] = 0
+
+        return p
+
+    @staticmethod
+    def predict_multiclass(probas):
+
+        p = np.argmax(probas, axis=0)
+
+        p = p.reshape(-1,1).T
+
+        return p
+
+
+    @staticmethod
+    def predict(X, parameters):
         """
         This function is used to predict the results of a  L-layer neural network.
 
@@ -267,18 +292,14 @@ class ann(object):
         p -- predictions for the given dataset X
         """
 
-        m = X.shape[1]
-        p = np.zeros((1,m))
-
         # Forward propagation
         probas, caches = ann.L_model_forward(X, parameters)
 
-        # convert probas to 0/1 predictions
-        for i in range(0, probas.shape[1]):
-            if probas[0,i] > 0.5:
-                p[0,i] = 1
-            else:
-                p[0,i] = 0
+        binary = probas.shape[0] == 1
+        if binary:
+            p = ann.predict_binary(probas)
+        else:
+            p = ann.predict_multiclass(probas)
 
         return p
 
@@ -288,15 +309,22 @@ class ann(object):
 
         m = X.shape[1]
 
-        p = ann.predict_binary(X, parameters)
+        y_ = ann.predict(X, parameters)
 
         #print results
         #print ("predictions: " + str(p))
         #print ("true labels: " + str(y))
-        print("Accuracy: "  + str(np.sum((p == y)/m)))
+        binary = y.shape[0] == 1
+        if binary:
+            print("Accuracy: "  + str(np.sum((y_ == y)/m)))
+        else:
+            y = np.argmax(y, axis=0)
+            y = y.reshape(-1,1).T
+            print("Accuracy: "  + str(np.sum((y_ == y)/m)))
 
 
-    def fit(self, X_train, Y_train, X_test, Y_test, batch_size, learning_rate = 0.0075, num_iterations = 3000, print_cost=False):
+
+    def fit(self, X_train, Y_train, X_test, Y_test, batch_size, learning_rate = 0.0075, num_iterations = 3000, print_cost=False, random_seed = 1):
         """
         Implements a L-layer neural network: [LINEAR->RELU]*(L-1)->LINEAR->SIGMOID.
 
@@ -312,10 +340,10 @@ class ann(object):
         parameters -- parameters learnt by the model. They can then be used to predict.
         """
 
-        np.random.seed(1)
+        np.random.seed(random_seed)
         costs = []                         # keep track of cost
 
-        n = Y_train.shape[1]
+        n_classes = Y_train.shape[1]
 
         # Parameters initialization. (≈ 1 line of code)
         ### START CODE HERE ###
@@ -336,7 +364,7 @@ class ann(object):
 
             # Compute cost.
             ### START CODE HERE ### (≈ 1 line of code)
-            if n == 1:
+            if n_classes == 1:
                 cost = logistic_cost(AL, Y_rand)
             else:
                 cost = logloss(AL, Y_rand)
@@ -361,5 +389,4 @@ class ann(object):
         self.parameters = parameters
         self.costs = costs
 
-        if n == 1:
-            accuracy = ann.accuracy(X_test.T, Y_test.T, parameters)
+        accuracy = ann.accuracy(X_test.T, Y_test.T, parameters)
