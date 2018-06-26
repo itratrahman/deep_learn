@@ -1,5 +1,6 @@
 # import numpy
 import numpy as np
+from sklearn.metrics import log_loss
 
 
 def logistic_cost(AL, Y):
@@ -22,4 +23,12 @@ def logistic_cost(AL, Y):
     cost = np.squeeze(cost)      # To make sure your cost's shape is what we expect (e.g. this turns [[17]] into 17).
     assert(cost.shape == ())
 
+    return cost
+
+
+def logloss(AL, Y, eps=1e-15):
+
+    '''a function which implements logloss'''
+
+    cost = log_loss(Y.T, AL.T)
     return cost

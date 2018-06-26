@@ -1,6 +1,6 @@
 import numpy as np
 from ..utils.activation import sigmoid, relu
-from ..utils.cost import logistic_cost
+from ..utils.cost import logistic_cost, logloss
 from ..utils.back_prop import sigmoid_backward, relu_backward
 
 
@@ -121,7 +121,7 @@ class ann(object):
         # Implement [LINEAR -> RELU]*(L-1). Add "cache" to the "caches" list.
         for l in range(1, L):
             A_prev = A
-            A, cache = ann.linear_activation_forward(A_prev, parameters['W' + str(l)], parameters['b' + str(l)], activation = "relu")
+            A, cache = ann.linear_activation_forward(A_prev, parameters['W' + str(l)], parameters['b' + str(l)], activation = "sigmoid")
             caches.append(cache)
 
         # Implement LINEAR -> SIGMOID. Add "cache" to the "caches" list.
@@ -222,7 +222,7 @@ class ann(object):
         for l in reversed(range(L-1)):
             # lth layer: (RELU -> LINEAR) gradients.
             current_cache = caches[l]
-            dA_prev_temp, dW_temp, db_temp = ann.linear_activation_backward(grads["dA" + str(l + 1)], current_cache, activation = "relu")
+            dA_prev_temp, dW_temp, db_temp = ann.linear_activation_backward(grads["dA" + str(l + 1)], current_cache, activation = "sigmoid")
             grads["dA" + str(l)] = dA_prev_temp
             grads["dW" + str(l + 1)] = dW_temp
             grads["db" + str(l + 1)] = db_temp
@@ -338,6 +338,8 @@ class ann(object):
             ### START CODE HERE ### (≈ 1 line of code)
             if n == 1:
                 cost = logistic_cost(AL, Y_rand)
+            else:
+                cost = logloss(AL, Y_rand)
             ### END CODE HERE ###
 
             # Backward propagation.
@@ -360,4 +362,4 @@ class ann(object):
         self.costs = costs
 
         if n == 1:
-            predictions = ann.accuracy(X_test.T, Y_test.T, parameters)
+            accuracy = ann.accuracy(X_test.T, Y_test.T, parameters)

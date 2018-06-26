@@ -38,7 +38,7 @@ class test(object):
 
         X, parameters = L_model_forward_test_case_2hidden()
         AL, caches = ann.L_model_forward(X, parameters)
-        assert(np.allclose(AL, np.array([[ 0.03921668, 0.70498921, 0.19734387, 0.04728177]])))
+        assert(np.allclose(AL, np.array([[ 0.55865298,  0.52006807,  0.51071853,  0.53912084]])))
         assert(len(caches)==3)
 
         print("L_model_forward_test passed", "\n")
@@ -79,9 +79,11 @@ class test(object):
 
         AL, Y_assess, caches = L_model_backward_test_case()
         grads = ann.L_model_backward(AL, Y_assess, caches)
-        assert(np.allclose(grads['dW1'], np.array([[ 0.41010002, 0.07807203, 0.13798444, 0.10502167],[ 0., 0., 0.,0.], [ 0.05283652, 0.01005865, 0.01777766, 0.0135308]])))
-        assert(np.allclose(grads['db1'], np.array([[-0.22007063],[0.],[-0.02835349]])))
-        assert(np.allclose(grads['dA1'], np.array([[ 0.12913162, -0.44014127],[-0.14175655,  0.48317296],[ 0.01663708, -0.05670698]])))
+        assert(np.allclose(grads['dW1'], np.array([[ 0.0944987, 0.01377483, 0.03015356, 0.02322328],
+        [-0.09912664, -0.01366395, -0.03132431, -0.02417861],
+        [ 0.01173121, 0.0016263, 0.00371069, 0.00286357]])))
+        assert(np.allclose(grads['db1'], np.array([[-0.0357204 ],[ 0.03467639],[-0.00413664]])))
+        assert(np.allclose(grads['dA1'], np.array([[0.12913162, -0.44014127],[-0.14175655, 0.48317296],[0.01663708, -0.05670698]])))
 
         print("L_model_backward_test passed", "\n")
 
@@ -99,6 +101,10 @@ class test(object):
         assert(np.allclose(parameters['b2'], np.array([[-0.84610769]])))
 
         print("update_parameters_test passed", "\n")
+
+
+
+
 
 
 ##The main script
@@ -121,6 +127,7 @@ if __name__ == "__main__":
     test.L_model_backward_test()
 
     test.update_parameters_test()
+
 
     done = time.time()
 
