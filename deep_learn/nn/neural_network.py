@@ -13,6 +13,7 @@ class ann(object):
         self.layers_dims = layers_dims
         self.parameters = None
         self.costs = None
+        self.accuracy = None
 
 
     @staticmethod
@@ -316,15 +317,16 @@ class ann(object):
         #print ("true labels: " + str(y))
         binary = y.shape[0] == 1
         if binary:
-            print("Accuracy: "  + str(np.sum((y_ == y)/m)))
+            accuracy = np.sum((y_ == y)/m)
         else:
             y = np.argmax(y, axis=0)
             y = y.reshape(-1,1).T
-            print("Accuracy: "  + str(np.sum((y_ == y)/m)))
+            accuracy = np.sum((y_ == y)/m)
+
+        return accuracy
 
 
-
-    def fit(self, X_train, Y_train, X_test, Y_test, batch_size, learning_rate = 0.0075, num_iterations = 3000, print_cost=False, random_seed = 1):
+    def fit(self, X_train, Y_train, X_test, Y_test, batch_size, learning_rate = 0.0075, num_iterations = 3000, print_cost=False, random_seed = 0):
         """
         Implements a L-layer neural network: [LINEAR->RELU]*(L-1)->LINEAR->SIGMOID.
 
@@ -351,7 +353,7 @@ class ann(object):
         ### END CODE HERE ###
 
         # Loop (gradient descent)
-        for i in range(0, num_iterations):
+        for i in range(0, num_iterations+1):
 
             rand_index = np.random.choice(X_train.shape[0], size=batch_size)
             X_rand = X_train[rand_index].T
@@ -383,10 +385,14 @@ class ann(object):
             # Print the cost every 100 training example
             if print_cost and i % 100 == 0:
                 print ("Cost after iteration %i: %f" %(i, cost))
-            if print_cost and i % 100 == 0:
+            if i % 100 == 0:
                 costs.append(cost)
+
+        accuracy = ann.accuracy(X_test.T, Y_test.T, parameters)
+
+        if print_cost:
+            print("Accuracy: "  + str(accuracy))
 
         self.parameters = parameters
         self.costs = costs
-
-        accuracy = ann.accuracy(X_test.T, Y_test.T, parameters)
+        self.accuracy = accuracy
