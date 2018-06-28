@@ -134,7 +134,7 @@ class ann(object):
             A, cache = ann.linear_activation_forward(A_prev, parameters['W' + str(l)], parameters['b' + str(l)], activation = "sigmoid")
             caches.append(cache)
 
-        # Implement LINEAR -> SIGMOID. Add "cache" to the "caches" list.
+        # Implement Lth Layer LINEAR -> SIGMOID. Add "cache" to the "caches" list.
         AL, cache = ann.linear_activation_forward(A, parameters['W' + str(L)], parameters['b' + str(L)], activation = "sigmoid")
         caches.append(cache)
 
@@ -221,7 +221,7 @@ class ann(object):
         m = AL.shape[1]
         Y = Y.reshape(AL.shape) # after this line, Y is the same shape as AL
 
-        # Initializing the backpropagation
+        # Initialize the backpropagation
         dAL = - (np.divide(Y, AL) - np.divide(1 - Y, 1 - AL))
 
         # Lth layer (SIGMOID -> LINEAR) gradients. Inputs: "AL, Y, caches". Outputs: "grads["dAL"], grads["dWL"], grads["dbL"]
@@ -256,7 +256,7 @@ class ann(object):
 
         L = len(parameters) // 2 # number of layers in the neural network
 
-        # Update rule for each parameter. Use a for loop.
+        # update wieght and bias parameters
         for l in range(L):
             parameters["W" + str(l+1)] = parameters["W" + str(l+1)] - learning_rate * grads["dW" + str(l+1)]
             parameters["b" + str(l+1)] = parameters["b" + str(l+1)] - learning_rate * grads["db" + str(l+1)]
@@ -393,7 +393,10 @@ class ann(object):
 
             # Print the cost every 100 training example
             if print_cost and i % 100 == 0:
-                print ("Cost after iteration %i: %f" %(i, cost))
+                if n_classes == 1:
+                    print("Logistic cost after iteration %i: %f" %(i, cost))
+                else:
+                    print("Log loss after iteration %i: %f" %(i, cost))
 
             # Save the cost every 100 training example
             if i % 100 == 0:
