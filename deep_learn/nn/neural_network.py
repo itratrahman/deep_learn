@@ -1,3 +1,5 @@
+
+# import statements
 import numpy as np
 from ..utils.activation import sigmoid, relu
 from ..utils.cost import logistic_cost, logloss
@@ -8,11 +10,18 @@ class ann(object):
 
 
     """a class module which implements feed forward neural network"""
+
     def __init__(self, layers_dims):
 
+        '''constructor which initializes the neural network architecture
+        and contains model fields which are initialized after training'''
+
         self.layers_dims = layers_dims
+        # contains neural network parameters
         self.parameters = None
+        # list of costs during training stored at every 100th iteration
         self.costs = None
+        # store the accuracy of the model
         self.accuracy = None
 
 
@@ -102,7 +111,7 @@ class ann(object):
     @staticmethod
     def L_model_forward(X, parameters):
         """
-        Implement forward propagation for the [LINEAR->RELU]*(L-1)->LINEAR->SIGMOID computation
+        Implement forward propagation for L layer model
 
         Arguments:
         X -- data, numpy array of shape (input size, number of examples)
@@ -119,7 +128,7 @@ class ann(object):
         A = X
         L = len(parameters) // 2                  # number of layers in the neural network
 
-        # Implement [LINEAR -> RELU]*(L-1). Add "cache" to the "caches" list.
+        # Implement [LINEAR -> SIGMOID]*(L-1). Add "cache" to the "caches" list.
         for l in range(1, L):
             A_prev = A
             A, cache = ann.linear_activation_forward(A_prev, parameters['W' + str(l)], parameters['b' + str(l)], activation = "sigmoid")
@@ -129,7 +138,6 @@ class ann(object):
         AL, cache = ann.linear_activation_forward(A, parameters['W' + str(L)], parameters['b' + str(L)], activation = "sigmoid")
         caches.append(cache)
 
-        # assert(AL.shape == (1,X.shape[1]))
 
         return AL, caches
 
@@ -221,7 +229,7 @@ class ann(object):
         grads["dA" + str(L-1)], grads["dW" + str(L)], grads["db" + str(L)] = ann.linear_activation_backward(dAL, current_cache, activation = "sigmoid")
 
         for l in reversed(range(L-1)):
-            # lth layer: (RELU -> LINEAR) gradients.
+            # lth layer: (SIGMOID -> LINEAR) gradients.
             current_cache = caches[l]
             dA_prev_temp, dW_temp, db_temp = ann.linear_activation_backward(grads["dA" + str(l + 1)], current_cache, activation = "sigmoid")
             grads["dA" + str(l)] = dA_prev_temp
@@ -258,6 +266,8 @@ class ann(object):
     @staticmethod
     def predict_binary(probas):
 
+        '''computes prediction for binary classification'''
+
         m = probas.shape[1]
         p = np.zeros((1,m))
 
@@ -272,6 +282,8 @@ class ann(object):
 
     @staticmethod
     def predict_multiclass(probas):
+
+        '''computes prediction for multiclass classification'''
 
         p = np.argmax(probas, axis=0)
 
@@ -308,6 +320,8 @@ class ann(object):
     @staticmethod
     def accuracy(X, y, parameters):
 
+        '''computes accuracy of the model given X y data'''
+
         m = X.shape[1]
 
         y_ = ann.predict(X, parameters)
@@ -328,71 +342,71 @@ class ann(object):
 
     def fit(self, X_train, Y_train, X_test, Y_test, batch_size, learning_rate = 0.0075, num_iterations = 3000, print_cost=False, random_seed = 0):
         """
-        Implements a L-layer neural network: [LINEAR->RELU]*(L-1)->LINEAR->SIGMOID.
+        Implements a L-layer neural network: [LINEAR->SIGMOID]*(L-1)->LINEAR->SIGMOID.
 
         Arguments:
-        X -- data, numpy array of shape (number of examples, num_px * num_px * 3)
-        Y -- true "label" vector (containing 0 if cat, 1 if non-cat), of shape (1, number of examples)
-        layers_dims -- list containing the input size and each layer size, of length (number of layers + 1).
+        X_train -- X data of train set, numpy array of shape (number of examples, number of featues)
+        Y_train -- y data of train set, numpy array of shape (number of examples, number of classes)
+        X_test -- X data of test set, numpy array of shape (number of examples, number of featues)
+        Y_test -- y data of test set, numpy array of shape (number of examples, number of classes)
+        batch_size -- batch size of batch gradient descent
         learning_rate -- learning rate of the gradient descent update rule
         num_iterations -- number of iterations of the optimization loop
         print_cost -- if True, it prints the cost every 100 steps
+        random_seed -- random seed of numpy random class
 
-        Returns:
-        parameters -- parameters learnt by the model. They can then be used to predict.
         """
 
+        # set the random seed of numpy
         np.random.seed(random_seed)
-        costs = []                         # keep track of cost
-
+        # list to store the cost at every 100th iteration
+        costs = []
+        # number of classes
         n_classes = Y_train.shape[1]
 
-        # Parameters initialization. (≈ 1 line of code)
-        ### START CODE HERE ###
+        # Parameters initialization
         parameters = ann.initialize_parameters_deep(self.layers_dims)
-        ### END CODE HERE ###
 
         # Loop (gradient descent)
         for i in range(0, num_iterations+1):
 
+            # randomly choose a batch
             rand_index = np.random.choice(X_train.shape[0], size=batch_size)
             X_rand = X_train[rand_index].T
             Y_rand = Y_train[rand_index].T
 
-            # Forward propagation: [LINEAR -> RELU]*(L-1) -> LINEAR -> SIGMOID.
-            ### START CODE HERE ### (≈ 1 line of code)
+            # Forward propagation: [LINEAR -> SIGMOID]*(L-1) -> LINEAR -> SIGMOID.
             AL, caches = ann.L_model_forward(X_rand, parameters)
-            ### END CODE HERE ###
 
-            # Compute cost.
-            ### START CODE HERE ### (≈ 1 line of code)
+            # Compute logistic cost for binary classification
+            # Compute logloss for multiclass classification
             if n_classes == 1:
                 cost = logistic_cost(AL, Y_rand)
             else:
                 cost = logloss(Y_rand, AL)
-            ### END CODE HERE ###
 
             # Backward propagation.
-            ### START CODE HERE ### (≈ 1 line of code)
             grads = ann.L_model_backward(AL, Y_rand, caches)
-            ### END CODE HERE ###
 
-            # Update parameters.
-            ### START CODE HERE ### (≈ 1 line of code)
+            # Update parameters
             parameters = ann.update_parameters(parameters, grads, learning_rate)
-            ### END CODE HERE ###
 
             # Print the cost every 100 training example
             if print_cost and i % 100 == 0:
                 print ("Cost after iteration %i: %f" %(i, cost))
+
+            # Save the cost every 100 training example
             if i % 100 == 0:
                 costs.append(cost)
 
+        # compute accuracy using test set
         accuracy = ann.accuracy(X_test.T, Y_test.T, parameters)
 
+        # print accuracy
         if print_cost:
             print("Accuracy: "  + str(accuracy))
 
+        # set the object fields
         self.parameters = parameters
         self.costs = costs
         self.accuracy = accuracy

@@ -11,7 +11,7 @@ def logistic_cost(AL, Y):
     Y -- true "label" vector (for example: containing 0 if non-cat, 1 if cat), shape (1, number of examples)
 
     Returns:
-    cost -- cross-entropy cost
+    cost -- logistic cost
     """
 
     m = Y.shape[1]
@@ -27,7 +27,16 @@ def logistic_cost(AL, Y):
 
 def logloss(Y, AL, eps=1e-15):
 
-    '''a function which implements logloss'''
+    """
+    Implement the cost function defined by equation (7).
+
+    Arguments:
+    AL -- probability vector corresponding to your label predictions, shape (1, number of examples)
+    Y -- one hot coded matrix, shape (number of classes, number of examples)
+
+    Returns:
+    cost -- logloss
+    """
     y_pred = AL.T
     y_true = Y.T
 
