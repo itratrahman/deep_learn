@@ -1,10 +1,15 @@
-# add the directory of the package to the system path
-from config import *
-append_path('../')
+
+# import modules from deep_learn package
+try:
+    from deep_learn.nn import ann
+    from deep_learn.utils.cost import logloss
+except:
+    from config import *
+    append_path('../')
+    from deep_learn.nn import ann
+    from deep_learn.utils.cost import logloss
 
 # import statements
-from deep_learn.nn import ann
-from deep_learn.utils.cost import logloss
 from test_cases import *
 import numpy as np
 import math
@@ -121,11 +126,8 @@ class test(object):
         y_ = np.array([[.01, .9, .35],[.8, .3, .1],[.1,.25,.75],[0.4, .2,.95],[.65, .001,0.06]])
         y = np.array([[0, 1, 0],[1, 0, 0],[0,0,1],[0, 0,1],[1, 0,0]])
         assert(log_loss(y,y_) == logloss(y.T,y_.T))
-        
+
         print("logloss_test passed", "\n")
-
-
-
 
 
 ##The main script
