@@ -33,4 +33,4 @@ model.fit(X_train, Y_train, X_test, Y_test, batch_size,
           num_iterations = num_iterations, print_cost=True, random_seed = 0)
 ```
 
-**Read the jupyter notebooks in analysis folder to further understand the usage of the package**
+**Read the jupyter notebooks in the analysis folder to further understand the usage of the package**

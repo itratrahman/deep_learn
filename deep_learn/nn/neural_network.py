@@ -128,16 +128,13 @@ class ann(object):
         A = X
         L = len(parameters) // 2                  # number of layers in the neural network
 
-        # Implement [LINEAR -> SIGMOID]*(L-1). Add "cache" to the "caches" list.
-        for l in range(1, L):
+        # Implement [LINEAR -> SIGMOID]*L. Add "cache" to the "caches" list.
+        for l in range(1, L+1):
             A_prev = A
             A, cache = ann.linear_activation_forward(A_prev, parameters['W' + str(l)], parameters['b' + str(l)], activation = "sigmoid")
             caches.append(cache)
 
-        # Implement Lth Layer LINEAR -> SIGMOID. Add "cache" to the "caches" list.
-        AL, cache = ann.linear_activation_forward(A, parameters['W' + str(L)], parameters['b' + str(L)], activation = "sigmoid")
-        caches.append(cache)
-
+        AL = A
 
         return AL, caches
 
